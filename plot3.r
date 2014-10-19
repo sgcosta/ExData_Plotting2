@@ -1,0 +1,63 @@
+#### Project: Project 2 Coursera 
+#### Course: "Exploratory Data Analysis"
+#### Date: October 18, 2014
+#### Author: Costa, S.
+#### Plot: Plot 3
+#### Of the four types of sources indicated by the type (point, nonpoint, onroad, nonroad) variable, which of these four sources have seen decreases in emissions from 1999–2008 for Baltimore City? 
+#### Which have seen increases in emissions from 1999–2008? 
+#### Use the ggplot2 plotting system to make a plot answer this question.
+
+# Use ggplot2 library
+library(ggplot2)
+
+## Set VariableS
+# File URL to download to Data Set
+fileURL <- 'https://d396qusza40orc.cloudfront.net/exdata%2Fdata%2FNEI_data.zip'
+
+# Local data file
+dataFileZIP <- "./exdata-data-NEI_data"
+
+# Directory
+dirFile <- "./Project"
+
+# Directory and filenames (rds) of the clean data
+SCC <- "./Source_Classification_Code.rds"
+NEI <- "./summarySCC_PM25.rds"
+
+# Download the dataset (.ZIP), which does not exist
+if (file.exists(dataFileZIP) == FALSE) {
+    download.file(fileURL, destfile = dataFileZIP)
+}
+
+# UnZIP data file
+if (file.exists(dirFile) == FALSE) {
+    unzip(dataFileZIP)
+}
+
+# Read and Clean Data (a hook function for handling reference objects)
+SCCData <- readRDS(SCC, refhook = NULL)
+NEIData <- readRDS(NEI, refhook = NULL)
+
+# Baltimore City
+Baltimore <- NEIData[NEIData$fips == "24510", ]
+
+#Aggregate Emmisions by Year and Type
+BaltimoreNEI <- aggregate(Emissions ~ year + type, Baltimore, sum)
+
+## Plot3
+## Construct the plot and save it to a PNG file with a width of 680 pixels and a height of 480 pixels (units).
+png("plot3.png", 
+    width  = 680, 
+    height = 480, 
+    units  = 'px', 
+    bg     = 'white')
+
+# Construct the plot using the ggplot function
+ggplot(BaltimoreNEI, aes(x = factor(year), y = Emissions, fill = type)) +
+    geom_bar(stat = "identity") + 
+    facet_grid(. ~ type) + 
+    xlab("Year") +
+    ylab(expression("Total PM"[2.5] * " Emission [in Tons]")) +
+    ggtitle(expression("Total PM"[2.5] * " Emission from Baltimore City by Type (1999 - 2008)"))
+
+dev.off()
