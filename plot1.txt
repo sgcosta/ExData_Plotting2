@@ -1,0 +1,60 @@
+#### Project: Project 2 Coursera 
+#### Course: "Exploratory Data Analysis"
+#### Date: October 17, 2014
+#### Plot: Plot 1
+#### Have total emissions from PM2.5 decreased in the United States from 1999 to 2008? 
+#### Using the base plotting system, make a plot showing the total PM2.5 emission from all sources for each of the years 1999, 2002, 2005, and 2008.
+
+## Set VariableS
+# File URL to download to Data Set
+fileURL <- 'https://d396qusza40orc.cloudfront.net/exdata%2Fdata%2FNEI_data.zip'
+
+# Local data file
+dataFileZIP <- "./exdata-data-NEI_data"
+
+# Directory
+dirFile <- "./Project"
+
+# Directory and filenames (rds) of the clean data
+SCC <- "./Source_Classification_Code.rds"
+NEI <- "./summarySCC_PM25.rds"
+
+# Download the dataset (.ZIP), which does not exist
+if (file.exists(dataFileZIP) == FALSE) {
+    download.file(fileURL, destfile = dataFileZIP)
+}
+
+# UnZIP data file
+if (file.exists(dirFile) == FALSE) {
+    unzip(dataFileZIP)
+}
+
+# Read and Clean Data (a hook function for handling reference objects)
+SCCData <- readRDS(SCC, refhook = NULL)
+NEIData <- readRDS(NEI, refhook = NULL)
+
+#Aggregate Emmisions by Year
+YearNEI <- aggregate(Emissions ~ year, NEIData, sum)
+
+## Plot1
+## Construct the plot and save it to a PNG file with a width of 480 pixels and a height of 480 pixels (units).
+png("plot1.png", 
+    width  = 480, 
+    height = 480, 
+    units  = 'px', 
+    bg     = 'white')
+
+# Construct the basic bar plot using the barplot function
+Plot1 <- barplot(YearNEI$Emissions/1000000,
+        ylim = c(0, 8),
+        names.arg   = YearNEI$year,
+        main        = expression("Total PM"[2.5] * " Emission (1999 - 2008)"),
+        ylab        = expression("Total PM"[2.5] * " Emission [in Million Tons]"),
+        xlab        = "Year",
+        col         = rainbow(20, start = 0, end = 1),
+        args.legend = list(title = "PM2.5", x = "topright", cex = .9))
+
+# Plot Labeling bars with values
+text(Plot1, 0, round(YearNEI$Emissions, 0), cex = 1, pos = 3) 
+
+dev.off()
